@@ -19,7 +19,7 @@ export async function POST(request: Request) {
 
     // Use OpenAI to extract structured data from the profile content
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-3.5-turbo",
       messages: [
         {
           role: "system",
@@ -35,20 +35,22 @@ export async function POST(request: Request) {
           - projects: Array of their projects (if available)
           - recentPosts: Array of their recent posts or activities (if available)
           
-          Do not include any explanations or additional text outside the JSON structure.`
+          Do not include any explanations or additional text outside the JSON structure.`,
         },
         {
           role: "user",
-          content: profileContent
-        }
+          content: profileContent,
+        },
       ],
-      response_format: { type: "json_object" }
+      response_format: { type: "json_object" },
+      temperature: 0.3, // Lower temperature for more consistent results
+      max_tokens: 1500,
     });
 
     // Parse the response
     const responseContent = completion.choices[0].message.content;
     let profileData;
-    
+
     try {
       profileData = JSON.parse(responseContent || "{}");
     } catch (error) {
@@ -67,4 +69,4 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-} 
+}

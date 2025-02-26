@@ -5,17 +5,44 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --card: #ffffff;
+  --card-foreground: #171717;
+  --border: #e5e7eb;
+  --input: #e5e7eb;
+  --ring: #6366f1;
+  --radius: 0.5rem;
+  --muted: #f3f4f6;
+  --muted-foreground: #6b7280;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+.dark {
+  --background: #0f172a;
+  --foreground: #f8fafc;
+  --card: #1e293b;
+  --card-foreground: #f8fafc;
+  --border: #334155;
+  --input: #334155;
+  --ring: #6366f1;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+}
+
+@layer base {
+  * {
+    @apply border-gray-200 dark:border-gray-800;
+  }
+  body {
+    color: var(--foreground);
+    background-color: var(--background);
+    font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .animation-delay-2000 {
+    animation-delay: 2s;
+  }
+  .animation-delay-4000 {
+    animation-delay: 4s;
+  }
 }

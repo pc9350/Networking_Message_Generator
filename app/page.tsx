@@ -1,101 +1,218 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import { LinkedInUrlInput } from "@/components/linkedin-url-input";
+import { FileUpload } from "@/components/file-upload";
+import { MessageTypeSelector, type MessageType } from "@/components/message-type-selector";
+import { MessageLengthSelector, type MessageLength } from "@/components/message-length-selector";
+import { PlatformSelector, type MessagePlatform } from "@/components/platform-selector";
+import { MessageDisplay } from "@/components/message-display";
+import { ProfileCard } from "@/components/profile-card";
+import { ResumeCard } from "@/components/resume-card";
+import ProfileContentInput from "@/components/profile-content-input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { api, type ProfileData, type ResumeData } from "@/services/api";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [linkedinUrl, setLinkedinUrl] = useState("");
+  const [messageType, setMessageType] = useState<MessageType | null>(null);
+  const [messageLength, setMessageLength] = useState<MessageLength>("short");
+  const [platform, setPlatform] = useState<MessagePlatform>("linkedin");
+  const [profileData, setProfileData] = useState<ProfileData | null>(null);
+  const [resumeData, setResumeData] = useState<ResumeData | null>(null);
+  const [generatedMessage, setGeneratedMessage] = useState("");
+  
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+  const [isLoadingResume, setIsLoadingResume] = useState(false);
+  const [isGeneratingMessage, setIsGeneratingMessage] = useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+  const handleUrlSubmit = async (url: string) => {
+    setLinkedinUrl(url);
+    setIsLoadingProfile(true);
+    
+    try {
+      const data = await api.fetchProfileData(url);
+      setProfileData(data);
+    } catch (error) {
+      console.error("Error fetching profile data:", error);
+      // Handle error
+    } finally {
+      setIsLoadingProfile(false);
+    }
+  };
+
+  const handleProfileDataExtracted = (data: ProfileData) => {
+    setProfileData(data);
+    // If the data includes a LinkedIn URL, set it
+    if (data.profileUrl) {
+      setLinkedinUrl(data.profileUrl);
+    }
+  };
+
+  const handleFileUpload = async (file: File) => {
+    setIsLoadingResume(true);
+    
+    try {
+      const data = await api.uploadResume(file);
+      setResumeData(data);
+    } catch (error) {
+      console.error("Error uploading resume:", error);
+      // Handle error
+    } finally {
+      setIsLoadingResume(false);
+    }
+  };
+
+  const handleMessageTypeSelect = (type: MessageType) => {
+    setMessageType(type);
+  };
+
+  const handleMessageLengthSelect = (length: MessageLength) => {
+    setMessageLength(length);
+  };
+
+  const handlePlatformSelect = (selectedPlatform: MessagePlatform) => {
+    setPlatform(selectedPlatform);
+  };
+
+  const generateMessage = async () => {
+    if (!messageType || !profileData) return;
+    
+    setIsGeneratingMessage(true);
+    
+    try {
+      const message = await api.generateMessage({
+        linkedinUrl: linkedinUrl || "manual-input",
+        messageType,
+        messageLength,
+        platform,
+        profileData,
+        resumeData: resumeData || undefined,
+      });
+      
+      setGeneratedMessage(message);
+    } catch (error) {
+      console.error("Error generating message:", error);
+      // Handle error
+    } finally {
+      setIsGeneratingMessage(false);
+    }
+  };
+
+  return (
+    <div className="flex min-h-screen flex-col">
+      <Header />
+      
+      <main className="flex-1">
+        <section className="bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-950 py-12 md:py-24">
+          <div className="container px-4 md:px-6">
+            <div className="mx-auto max-w-3xl text-center">
+              <motion.h1 
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+                className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl"
+              >
+                Generate Personalized LinkedIn Messages
+              </motion.h1>
+              <motion.p 
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="mt-4 text-gray-600 dark:text-gray-400 md:text-lg"
+              >
+                Craft highly personalized LinkedIn messages for networking, referrals, and outreach
+              </motion.p>
+            </div>
+          </div>
+        </section>
+
+        <section className="py-12">
+          <div className="container px-4 md:px-6">
+            <div className="mx-auto max-w-5xl space-y-12">
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold tracking-tight">Step 1: Provide LinkedIn Profile Information</h2>
+                
+                <Tabs defaultValue="paste" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="paste">Paste Profile Content</TabsTrigger>
+                    <TabsTrigger value="url">Enter LinkedIn URL</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="paste">
+                    <ProfileContentInput onProfileDataExtracted={handleProfileDataExtracted} />
+                  </TabsContent>
+                  <TabsContent value="url">
+                    <LinkedInUrlInput onUrlSubmit={handleUrlSubmit} />
+                  </TabsContent>
+                </Tabs>
+              </div>
+
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold tracking-tight">Step 2: Upload Your Resume (Optional)</h2>
+                <p className="text-gray-600 dark:text-gray-400">
+                  Enhance your message with details from your resume
+                </p>
+                <FileUpload onFileUpload={handleFileUpload} />
+              </div>
+
+              {(profileData || isLoadingProfile) && (
+                <div className="space-y-6">
+                  <h2 className="text-2xl font-bold tracking-tight">Step 3: Configure Your Message</h2>
+                  
+                  <div className="space-y-6">
+                    <div>
+                      <PlatformSelector onSelect={handlePlatformSelect} />
+                    </div>
+                    
+                    <div>
+                      <MessageTypeSelector onSelect={handleMessageTypeSelect} platform={platform} />
+                    </div>
+                    
+                    <div>
+                      <MessageLengthSelector onSelect={handleMessageLengthSelect} />
+                    </div>
+                  </div>
+                  
+                  <div className="mt-6 flex justify-center">
+                    <button
+                      onClick={generateMessage}
+                      disabled={!messageType || isGeneratingMessage}
+                      className="inline-flex items-center justify-center rounded-md bg-primary-600 px-6 py-3 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {isGeneratingMessage ? "Generating..." : "Generate Message"}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {(generatedMessage || isGeneratingMessage) && (
+                <div className="space-y-6">
+                  <h2 className="text-2xl font-bold tracking-tight">Your Personalized Message</h2>
+                  <MessageDisplay message={generatedMessage} isLoading={isGeneratingMessage} />
+                </div>
+              )}
+
+              {(profileData || isLoadingProfile || resumeData || isLoadingResume) && (
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-bold tracking-tight">LinkedIn Profile Data</h2>
+                    <ProfileCard profile={profileData} isLoading={isLoadingProfile} />
+                  </div>
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-bold tracking-tight">Resume Data</h2>
+                    <ResumeCard resume={resumeData} isLoading={isLoadingResume} />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+
+      <Footer />
     </div>
   );
 }

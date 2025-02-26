@@ -2,9 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
-  experimental: {
-    serverComponentsExternalPackages: ["pdf-parse", "mammoth"],
-  },
+  serverExternalPackages: ["pdf-parse", "mammoth"],
   webpack: (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,

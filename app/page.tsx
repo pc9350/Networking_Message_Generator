@@ -139,13 +139,26 @@ export default function Home() {
                 <Tabs defaultValue="paste" className="w-full">
                   <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="paste">Paste Profile Content</TabsTrigger>
-                    <TabsTrigger value="url">Enter LinkedIn URL</TabsTrigger>
+                    <TabsTrigger value="url" disabled className="relative">
+                      Enter LinkedIn URL
+                      <span className="absolute -top-2 -right-2 rounded-full bg-primary-500 px-2 py-0.5 text-[10px] font-medium text-white">Soon</span>
+                    </TabsTrigger>
                   </TabsList>
                   <TabsContent value="paste">
                     <ProfileContentInput onProfileDataExtracted={handleProfileDataExtracted} />
                   </TabsContent>
                   <TabsContent value="url">
-                    <LinkedInUrlInput onUrlSubmit={handleUrlSubmit} />
+                    <div className="w-full space-y-4 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 text-center">
+                      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-8 w-8 text-gray-500">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
+                        </svg>
+                      </div>
+                      <h3 className="text-lg font-medium">Coming Soon</h3>
+                      <p className="text-gray-500">
+                        Direct LinkedIn URL integration is currently under development. Please use the "Paste Profile Content" option for now.
+                      </p>
+                    </div>
                   </TabsContent>
                 </Tabs>
               </div>

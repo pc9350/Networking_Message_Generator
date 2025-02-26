@@ -2,7 +2,7 @@
 
 A modern web application that helps users craft highly personalized LinkedIn messages for networking, built with Next.js, React, and TailwindCSS.
 
-![LinkedIn Message Generator](https://via.placeholder.com/1200x630/0077B5/FFFFFF?text=LinkedIn+Message+Generator)
+<!-- ![LinkedIn Message Generator](https://via.placeholder.com/1200x630/0077B5/FFFFFF?text=LinkedIn+Message+Generator) -->
 
 ## ✨ Features
 
@@ -40,7 +40,7 @@ A modern web application that helps users craft highly personalized LinkedIn mes
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/linkedin-message-generator.git
+   git clone https://github.com/pc9350/Networking_Message_Generator.git
    cd linkedin-message-generator
    ```
 
@@ -106,7 +106,7 @@ For resume parsing, the application uses:
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🙏 Acknowledgements
+## Acknowledgements
 
 - [Next.js](https://nextjs.org/)
 - [React](https://reactjs.org/)

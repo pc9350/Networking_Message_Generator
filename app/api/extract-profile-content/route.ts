@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
-// Initialize OpenAI client
+export const runtime = 'edge';
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -44,7 +45,7 @@ export async function POST(request: Request) {
       ],
       response_format: { type: "json_object" },
       temperature: 0.3, // Lower temperature for more consistent results
-      max_tokens: 1500,
+      max_tokens: 1000,
     });
 
     // Parse the response

@@ -1,9 +1,6 @@
 import axios from 'axios';
 import { MessageType } from '@/components/message-type-selector';
 
-// This would be replaced with your actual API URL in production
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-
 // Define interfaces for complex objects
 export interface ExperienceItem {
   company?: string;

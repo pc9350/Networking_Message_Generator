@@ -34,8 +34,6 @@ export function LinkedInUrlInput({ onUrlSubmit }: LinkedInUrlInputProps) {
     if (validateUrl(url)) {
       setIsLoading(true);
       onUrlSubmit(url);
-      // Note: In a real implementation, we would set isLoading back to false after the API call completes
-      // But since the parent component handles the API call, we can't do that here
     }
   };
 

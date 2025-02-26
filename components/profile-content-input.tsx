@@ -3,26 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-
-// Define a proper type for profile data
-interface ProfileData {
-  name?: string;
-  headline?: string;
-  currentPosition?: string;
-  company?: string;
-  experience?: string[] | Record<string, string>[];
-  education?: string[] | Record<string, string>[];
-  skills?: string[];
-  profileUrl?: string;
-  location?: string;
-  about?: string;
-  connections?: string;
-  recommendations?: string[];
-  certifications?: string[];
-  languages?: string[];
-  interests?: string[];
-  recentPosts?: string[] | Record<string, string>[];
-}
+import { ProfileData } from "@/services/api";
 
 interface ProfileContentInputProps {
   onProfileDataExtracted: (profileData: ProfileData) => void;
@@ -57,7 +38,21 @@ export default function ProfileContentInput({ onProfileDataExtracted }: ProfileC
       }
 
       const data = await response.json();
-      onProfileDataExtracted(data);
+      
+      // Ensure all required fields are present with default values if missing
+      const completeData: ProfileData = {
+        name: data.name || "",
+        headline: data.headline || "",
+        currentPosition: data.currentPosition || "",
+        company: data.company || "",
+        experience: data.experience || [],
+        education: data.education || [],
+        skills: data.skills || [],
+        recentPosts: data.recentPosts || [],
+        profileUrl: data.profileUrl || "",
+      };
+      
+      onProfileDataExtracted(completeData);
     } catch (err) {
       console.error("Error extracting profile data:", err);
       setError("Failed to extract profile data. Please try again.");

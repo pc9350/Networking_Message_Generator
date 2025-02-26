@@ -97,6 +97,7 @@ When crafting the message, please:
 2. Mention a relevant project from my resume if applicable
 3. Reference any educational similarities if relevant
 4. Highlight how my specific background could provide value
+5. My name is Pranav Chhabra, add that to the last of the message.
 `;
     }
 

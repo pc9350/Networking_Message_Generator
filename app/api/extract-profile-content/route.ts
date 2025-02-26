@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
-export const runtime = 'edge';
+export const runtime = "edge";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -52,8 +52,20 @@ export async function POST(request: Request) {
     const responseContent = completion.choices[0].message.content;
     let profileData;
 
+    if (!responseContent) {
+      throw new Error("Empty response from OpenAI");
+    }
+
+    // Try to clean the JSON string before parsing
+    const cleanedJson = responseContent
+      .replace(/[\r\n]+/g, " ") // Replace line breaks with spaces
+      .replace(/\\(?!["\\/bfnrt])/g, "\\\\") // Escape backslashes
+      .replace(/(?<!\\)"/g, '\\"') // Escape unescaped quotes
+      .replace(/^"/, '"') // Fix starting quote if needed
+      .replace(/"$/, '"'); // Fix ending quote if needed
+
     try {
-      profileData = JSON.parse(responseContent || "{}");
+      profileData = JSON.parse(cleanedJson);
     } catch (error) {
       console.error("Error parsing OpenAI response:", error);
       return NextResponse.json(

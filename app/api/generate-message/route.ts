@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { ExperienceItem, EducationItem } from "@/services/api";
 
 // Initialize OpenAI client
 const openai = new OpenAI({
@@ -18,7 +19,7 @@ export async function POST(request: Request) {
     }
 
     // Format experience items for better readability
-    const formatExperience = (exp: any) => {
+    const formatExperience = (exp: string | ExperienceItem) => {
       if (typeof exp === 'string') return exp;
       const title = exp.title || '';
       const company = exp.company || '';
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
     };
 
     // Format education items for better readability
-    const formatEducation = (edu: any) => {
+    const formatEducation = (edu: string | EducationItem) => {
       if (typeof edu === 'string') return edu;
       const degree = edu.degree || '';
       const field = edu.field || '';

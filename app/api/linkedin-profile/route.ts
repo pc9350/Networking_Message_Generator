@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
-import OpenAI from 'openai';
 
-// Initialize OpenAI client
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// In a real implementation, we would use OpenAI for profile analysis
+// import OpenAI from 'openai';
+// const openai = new OpenAI({
+//   apiKey: process.env.OPENAI_API_KEY,
+// });
 
 export async function GET(request: Request) {
   try {

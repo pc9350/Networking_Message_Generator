@@ -12,7 +12,7 @@ interface ProfileCardProps {
 interface PostItem {
   content?: string;
   date?: string;
-  [key: string]: any; // Allow for other potential properties
+  [key: string]: string | undefined; // More specific than 'any'
 }
 
 export function ProfileCard({ profile, isLoading }: ProfileCardProps) {

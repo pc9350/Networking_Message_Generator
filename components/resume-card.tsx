@@ -9,7 +9,7 @@ interface ResumeCardProps {
 }
 
 // Helper function to format experience items
-const formatExperienceItem = (exp: any): string => {
+const formatExperienceItem = (exp: string | Record<string, string>): string => {
   if (typeof exp === 'string') {
     return exp;
   }

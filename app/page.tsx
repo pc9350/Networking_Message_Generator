@@ -4,7 +4,6 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { LinkedInUrlInput } from "@/components/linkedin-url-input";
 import { FileUpload } from "@/components/file-upload";
 import { MessageTypeSelector, type MessageType } from "@/components/message-type-selector";
 import { MessageLengthSelector, type MessageLength } from "@/components/message-length-selector";
@@ -25,24 +24,10 @@ export default function Home() {
   const [resumeData, setResumeData] = useState<ResumeData | null>(null);
   const [generatedMessage, setGeneratedMessage] = useState("");
   
-  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+  // Since we're not using isLoadingProfile directly, we can comment it out or remove it
+  // const [isLoadingProfile, setIsLoadingProfile] = useState(false);
   const [isLoadingResume, setIsLoadingResume] = useState(false);
   const [isGeneratingMessage, setIsGeneratingMessage] = useState(false);
-
-  const handleUrlSubmit = async (url: string) => {
-    setLinkedinUrl(url);
-    setIsLoadingProfile(true);
-    
-    try {
-      const data = await api.fetchProfileData(url);
-      setProfileData(data);
-    } catch (error) {
-      console.error("Error fetching profile data:", error);
-      // Handle error
-    } finally {
-      setIsLoadingProfile(false);
-    }
-  };
 
   const handleProfileDataExtracted = (data: ProfileData) => {
     setProfileData(data);
@@ -156,7 +141,7 @@ export default function Home() {
                       </div>
                       <h3 className="text-lg font-medium">Coming Soon</h3>
                       <p className="text-gray-500">
-                        Direct LinkedIn URL integration is currently under development. Please use the "Paste Profile Content" option for now.
+                        Direct LinkedIn URL integration is currently under development. Please use the &quot;Paste Profile Content&quot; option for now.
                       </p>
                     </div>
                   </TabsContent>
@@ -171,7 +156,7 @@ export default function Home() {
                 <FileUpload onFileUpload={handleFileUpload} />
               </div>
 
-              {(profileData || isLoadingProfile) && (
+              {profileData && (
                 <div className="space-y-6">
                   <h2 className="text-2xl font-bold tracking-tight">Step 3: Configure Your Message</h2>
                   
@@ -208,11 +193,11 @@ export default function Home() {
                 </div>
               )}
 
-              {(profileData || isLoadingProfile || resumeData || isLoadingResume) && (
+              {(profileData || resumeData || isLoadingResume) && (
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div className="space-y-6">
                     <h2 className="text-xl font-bold tracking-tight">LinkedIn Profile Data</h2>
-                    <ProfileCard profile={profileData} isLoading={isLoadingProfile} />
+                    <ProfileCard profile={profileData} isLoading={false} />
                   </div>
                   <div className="space-y-6">
                     <h2 className="text-xl font-bold tracking-tight">Resume Data</h2>

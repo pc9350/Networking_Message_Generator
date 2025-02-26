@@ -70,7 +70,7 @@ export function LinkedInUrlInput({ onUrlSubmit }: LinkedInUrlInputProps) {
           <div className="text-xs text-gray-500">
             <p>Tips:</p>
             <ul className="list-disc pl-4 mt-1">
-              <li>Make sure the profile is public or you're connected to the person</li>
+              <li>Make sure the profile is public or you&apos;re connected to the person</li>
               <li>Copy the URL directly from the browser address bar</li>
               <li>Format should be: linkedin.com/in/username</li>
             </ul>

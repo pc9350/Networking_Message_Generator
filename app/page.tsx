@@ -197,7 +197,7 @@ export default function Home() {
                     <div className="space-y-6">
                       <h3 className="text-xl font-medium">Enter Job Listing Details</h3>
                       <p className="text-gray-600 dark:text-gray-400">
-                        Just paste the job listing content and we'll generate a personalized application message. Job title and company are optional.
+                        Just paste the job listing content and we&apos;ll generate a personalized application message. Job title and company are optional.
                       </p>
                       <JobPostInput 
                         onJobPostDataExtracted={handleJobPostDataExtracted}
@@ -209,7 +209,7 @@ export default function Home() {
                     <div className="space-y-6">
                       <h3 className="text-xl font-medium">Enter LinkedIn Feed Post Details</h3>
                       <p className="text-gray-600 dark:text-gray-400">
-                        Respond to someone who mentioned a job opportunity in their LinkedIn post. Just paste the post content and we'll generate a personalized response.
+                        Respond to someone who mentioned a job opportunity in their LinkedIn post. Just paste the post content and we&apos;ll generate a personalized response.
                       </p>
                       <FeedPostInput 
                         onJobPostDataExtracted={handleFeedPostDataExtracted}

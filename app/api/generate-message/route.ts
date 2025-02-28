@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
-import { ExperienceItem, EducationItem, JobPostData } from "@/services/api";
+import { ExperienceItem, EducationItem } from "@/services/api";
 
 // Initialize OpenAI client
 const openai = new OpenAI({

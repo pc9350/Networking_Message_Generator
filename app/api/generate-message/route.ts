@@ -160,7 +160,7 @@ LinkedIn Profile Information:
 When crafting the message:
 1. You can reference relevant skills or experience from my resume if it fits naturally
 2. My name is Pranav Chhabra, add that to the end of the message
-3. IMPORTANT: You MUST include a brief mention that my resume is attached or that I'd be happy to share it
+3. IMPORTANT: Include a professional mention that my resume is attached (e.g., "I've attached my resume for your review" or "My resume is attached for your reference")
 `;
     } else {
       // If resume is not included, still add the name
@@ -207,7 +207,7 @@ End with a clear, low-friction call to action.`;
         prompt += `\nCreate a personalized job application message that stands out from generic applications.
 Highlight qualifications that directly match the job requirements.
 Show enthusiasm for the role and company with specific reasons.
-${includeResume ? 'Include a clear statement that my resume is attached for their review.' : ''}
+${includeResume ? 'Include a professional statement that my resume is attached for review.' : ''}
 End with a clear call to action requesting an interview or conversation.`;
         break;
       case 'job-post-response':
@@ -215,7 +215,7 @@ End with a clear call to action requesting an interview or conversation.`;
 Express interest in the opportunity they mentioned in their post.
 Briefly highlight relevant qualifications that make me a good fit.
 Mention that you'd like to learn more about the role before formally applying.
-${includeResume ? 'Include a clear statement that my resume is attached or that I\'d be happy to share it.' : ''}
+${includeResume ? 'Include a professional statement that my resume is attached for their consideration.' : ''}
 End with a clear but low-pressure call to action (like offering to chat or asking about next steps).`;
         break;
       default:
@@ -229,7 +229,7 @@ Avoid generic language like "I came across your profile" or "I was impressed by 
 Focus on quality over quantity - every sentence should add value.
 Keep the tone warm and professional.
 Be specific and concise - get to the point quickly.
-${includeResume ? 'IMPORTANT: Make sure to mention that my resume is attached or will be shared.' : ''}`;
+${includeResume ? 'IMPORTANT: Include a professional statement that my resume is attached (avoid phrases like "happy to share" or "would love to share").' : ''}`;
 
     // Call OpenAI API
     const completion = await openai.chat.completions.create({

@@ -3,13 +3,14 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 
-export type MessageLength = "short" | "medium" | "long";
+export type MessageLength = "very-short" | "short" | "medium" | "long";
 
 interface MessageLengthOption {
   id: MessageLength;
   title: string;
   description: string;
   wordCount: string;
+  icon?: React.ReactNode;
 }
 
 interface MessageLengthSelectorProps {
@@ -20,6 +21,28 @@ export function MessageLengthSelector({ onSelect }: MessageLengthSelectorProps) 
   const [selectedLength, setSelectedLength] = useState<MessageLength>("short");
 
   const lengthOptions: MessageLengthOption[] = [
+    {
+      id: "very-short",
+      title: "Very Short",
+      description: "25-50 words, brief and human-like",
+      wordCount: "25-50 words",
+      icon: (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          strokeWidth={1.5}
+          stroke="currentColor"
+          className="h-6 w-6"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M3.75 9h16.5m-16.5 6.75h6"
+          />
+        </svg>
+      ),
+    },
     {
       id: "short",
       title: "Short",

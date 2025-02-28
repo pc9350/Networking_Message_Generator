@@ -53,6 +53,12 @@ export default function ProfileContentInput({ onProfileDataExtracted }: ProfileC
       };
       
       onProfileDataExtracted(completeData);
+      
+      // Scroll to the message configuration section
+      const messageConfigSection = document.getElementById('message-config-section');
+      if (messageConfigSection) {
+        messageConfigSection.scrollIntoView({ behavior: 'smooth' });
+      }
     } catch (err) {
       console.error("Error extracting profile data:", err);
       setError("Failed to extract profile data. Please try again.");
@@ -96,8 +102,12 @@ export default function ProfileContentInput({ onProfileDataExtracted }: ProfileC
           disabled={isLoading || !profileContent.trim()}
           className="w-full"
         >
-          {isLoading ? "Extracting..." : "Extract Profile Data"}
+          {isLoading ? "Extracting..." : "Extract Profile & Continue"}
         </Button>
+        
+        <p className="text-xs text-gray-500 text-center mt-2">
+          After clicking, scroll down to configure and generate your message
+        </p>
       </div>
     </div>
   );

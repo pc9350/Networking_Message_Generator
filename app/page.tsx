@@ -12,22 +12,27 @@ import { MessageDisplay } from "@/components/message-display";
 import { ProfileCard } from "@/components/profile-card";
 import { ResumeCard } from "@/components/resume-card";
 import ProfileContentInput from "@/components/profile-content-input";
+import JobPostInput from "@/components/job-post-input";
+import FeedPostInput from "@/components/feed-post-input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { api, type ProfileData, type ResumeData } from "@/services/api";
+import { api, type ProfileData, type ResumeData, type JobPostData } from "@/services/api";
 
 export default function Home() {
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [messageType, setMessageType] = useState<MessageType | null>(null);
-  const [messageLength, setMessageLength] = useState<MessageLength>("short");
+  const [messageLength, setMessageLength] = useState<MessageLength>("very-short");
   const [platform, setPlatform] = useState<MessagePlatform>("linkedin");
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [resumeData, setResumeData] = useState<ResumeData | null>(null);
+  const [jobPostData, setJobPostData] = useState<JobPostData | null>(null);
+  const [includeResume, setIncludeResume] = useState(true);
   const [generatedMessage, setGeneratedMessage] = useState("");
   
   // Since we're not using isLoadingProfile directly, we can comment it out or remove it
   // const [isLoadingProfile, setIsLoadingProfile] = useState(false);
   const [isLoadingResume, setIsLoadingResume] = useState(false);
   const [isGeneratingMessage, setIsGeneratingMessage] = useState(false);
+  const [activeTab, setActiveTab] = useState<"profile" | "job" | "feed">("profile");
 
   const handleProfileDataExtracted = (data: ProfileData) => {
     setProfileData(data);
@@ -35,6 +40,22 @@ export default function Home() {
     if (data.profileUrl) {
       setLinkedinUrl(data.profileUrl);
     }
+  };
+
+  const handleJobPostDataExtracted = (data: JobPostData) => {
+    setJobPostData(data);
+    // Auto-select job application message type
+    setMessageType("job-application");
+  };
+
+  const handleFeedPostDataExtracted = (data: JobPostData) => {
+    setJobPostData(data);
+    // Auto-select job post response message type
+    setMessageType("job-post-response");
+  };
+
+  const handleIncludeResumeChange = (include: boolean) => {
+    setIncludeResume(include);
   };
 
   const handleFileUpload = async (file: File) => {
@@ -53,6 +74,16 @@ export default function Home() {
 
   const handleMessageTypeSelect = (type: MessageType) => {
     setMessageType(type);
+    
+    // If job application type is selected but no job post data, switch to job tab
+    if (type === "job-application" && !jobPostData) {
+      setActiveTab("job");
+    }
+    
+    // If job post response type is selected but no job post data, switch to feed tab
+    if (type === "job-post-response" && !jobPostData) {
+      setActiveTab("feed");
+    }
   };
 
   const handleMessageLengthSelect = (length: MessageLength) => {
@@ -64,7 +95,25 @@ export default function Home() {
   };
 
   const generateMessage = async () => {
-    if (!messageType || !profileData) return;
+    if (!messageType) return;
+    
+    // For job application, require job post data
+    if (messageType === "job-application" && !jobPostData) {
+      setActiveTab("job");
+      return;
+    }
+    
+    // For job post response, require job post data
+    if (messageType === "job-post-response" && !jobPostData) {
+      setActiveTab("feed");
+      return;
+    }
+    
+    // For other message types, require profile data
+    if (messageType !== "job-application" && messageType !== "job-post-response" && !profileData) {
+      setActiveTab("profile");
+      return;
+    }
     
     setIsGeneratingMessage(true);
     
@@ -74,8 +123,19 @@ export default function Home() {
         messageType,
         messageLength,
         platform,
-        profileData,
+        profileData: profileData || {
+          name: "",
+          headline: "",
+          currentPosition: "",
+          company: "",
+          education: [],
+          experience: [],
+          skills: [],
+          recentPosts: []
+        },
         resumeData: resumeData || undefined,
+        jobPostData: jobPostData || undefined,
+        includeResume: includeResume
       });
       
       setGeneratedMessage(message);
@@ -119,30 +179,42 @@ export default function Home() {
           <div className="container px-4 md:px-6">
             <div className="mx-auto max-w-5xl space-y-12">
               <div className="space-y-6">
-                <h2 className="text-2xl font-bold tracking-tight">Step 1: Provide LinkedIn Profile Information</h2>
+                <h2 className="text-2xl font-bold tracking-tight">Step 1: Choose Your Approach</h2>
                 
-                <Tabs defaultValue="paste" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="paste">Paste Profile Content</TabsTrigger>
-                    <TabsTrigger value="url" disabled className="relative">
-                      Enter LinkedIn URL
-                      <span className="absolute -top-2 -right-2 rounded-full bg-primary-500 px-2 py-0.5 text-[10px] font-medium text-white">Soon</span>
-                    </TabsTrigger>
+                <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as "profile" | "job" | "feed")} className="w-full">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="profile">LinkedIn Profile</TabsTrigger>
+                    <TabsTrigger value="job">Job Listing</TabsTrigger>
+                    <TabsTrigger value="feed">LinkedIn Post</TabsTrigger>
                   </TabsList>
-                  <TabsContent value="paste">
-                    <ProfileContentInput onProfileDataExtracted={handleProfileDataExtracted} />
+                  <TabsContent value="profile">
+                    <div className="space-y-6">
+                      <h3 className="text-xl font-medium">Provide LinkedIn Profile Information</h3>
+                      <ProfileContentInput onProfileDataExtracted={handleProfileDataExtracted} />
+                    </div>
                   </TabsContent>
-                  <TabsContent value="url">
-                    <div className="w-full space-y-4 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 text-center">
-                      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-8 w-8 text-gray-500">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
-                        </svg>
-                      </div>
-                      <h3 className="text-lg font-medium">Coming Soon</h3>
-                      <p className="text-gray-500">
-                        Direct LinkedIn URL integration is currently under development. Please use the &quot;Paste Profile Content&quot; option for now.
+                  <TabsContent value="job">
+                    <div className="space-y-6">
+                      <h3 className="text-xl font-medium">Enter Job Listing Details</h3>
+                      <p className="text-gray-600 dark:text-gray-400">
+                        Just paste the job listing content and we'll generate a personalized application message. Job title and company are optional.
                       </p>
+                      <JobPostInput 
+                        onJobPostDataExtracted={handleJobPostDataExtracted}
+                        onIncludeResumeChange={handleIncludeResumeChange}
+                      />
+                    </div>
+                  </TabsContent>
+                  <TabsContent value="feed">
+                    <div className="space-y-6">
+                      <h3 className="text-xl font-medium">Enter LinkedIn Feed Post Details</h3>
+                      <p className="text-gray-600 dark:text-gray-400">
+                        Respond to someone who mentioned a job opportunity in their LinkedIn post. Just paste the post content and we'll generate a personalized response.
+                      </p>
+                      <FeedPostInput 
+                        onJobPostDataExtracted={handleFeedPostDataExtracted}
+                        onIncludeResumeChange={handleIncludeResumeChange}
+                      />
                     </div>
                   </TabsContent>
                 </Tabs>
@@ -156,8 +228,8 @@ export default function Home() {
                 <FileUpload onFileUpload={handleFileUpload} />
               </div>
 
-              {profileData && (
-                <div className="space-y-6">
+              {(profileData || jobPostData) && (
+                <div id="message-config-section" className="space-y-6">
                   <h2 className="text-2xl font-bold tracking-tight">Step 3: Configure Your Message</h2>
                   
                   <div className="space-y-6">
@@ -193,18 +265,79 @@ export default function Home() {
                 </div>
               )}
 
-              {(profileData || resumeData || isLoadingResume) && (
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                {(profileData || activeTab === "profile") && (
                   <div className="space-y-6">
                     <h2 className="text-xl font-bold tracking-tight">LinkedIn Profile Data</h2>
-                    <ProfileCard profile={profileData} isLoading={false} />
+                    {profileData ? (
+                      <ProfileCard profile={profileData} isLoading={false} />
+                    ) : (
+                      <div className="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
+                        <div className="text-center text-gray-500">
+                          No profile data provided yet
+                        </div>
+                      </div>
+                    )}
                   </div>
+                )}
+                
+                {(jobPostData || activeTab === "job" || activeTab === "feed") && (
+                  <div className="space-y-6">
+                    <h2 className="text-xl font-bold tracking-tight">
+                      {activeTab === "feed" ? "LinkedIn Post Data" : "Job Post Data"}
+                    </h2>
+                    <div className="rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6">
+                      {jobPostData ? (
+                        <div className="space-y-4">
+                          <div>
+                            <h3 className="font-medium">{jobPostData.title}</h3>
+                            <p className="text-sm text-gray-500">
+                              {jobPostData.company} 
+                              {jobPostData.location ? ` • ${jobPostData.location}` : ''}
+                              {jobPostData.posterInfo ? ` • Posted by ${jobPostData.posterInfo.name}` : ''}
+                            </p>
+                          </div>
+                          
+                          {jobPostData.posterInfo && (
+                            <div>
+                              <h4 className="text-sm font-medium">Poster Information</h4>
+                              <p className="text-sm text-gray-600 dark:text-gray-400">
+                                {jobPostData.posterInfo.name}, {jobPostData.posterInfo.title} at {jobPostData.posterInfo.company}
+                              </p>
+                            </div>
+                          )}
+                          
+                          {jobPostData.requirements && jobPostData.requirements.length > 0 && (
+                            <div>
+                              <h4 className="text-sm font-medium">Key Requirements</h4>
+                              <ul className="mt-2 list-disc pl-5 text-sm">
+                                {jobPostData.requirements.map((req, index) => (
+                                  <li key={index} className="text-gray-600 dark:text-gray-400">{req}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                          
+                          <div className="text-sm text-gray-500">
+                            {includeResume ? 'Will reference resume in message' : 'Will not reference resume in message'}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="text-center text-gray-500">
+                          No {activeTab === "feed" ? "post" : "job"} data provided yet
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+                {(resumeData || isLoadingResume) && (
                   <div className="space-y-6">
                     <h2 className="text-xl font-bold tracking-tight">Resume Data</h2>
                     <ResumeCard resume={resumeData} isLoading={isLoadingResume} />
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </section>

@@ -22,6 +22,21 @@ export interface PostItem {
   [key: string]: any; // Allow for other potential properties
 }
 
+export interface JobPostData {
+  title: string;
+  company: string;
+  description: string;
+  requirements?: string[];
+  location?: string;
+  postUrl?: string;
+  postDate?: string;
+  posterInfo?: {
+    name: string;
+    title: string;
+    company: string;
+  };
+}
+
 export interface ProfileData {
   name: string;
   headline: string;
@@ -45,10 +60,12 @@ export interface ResumeData {
 export interface MessageRequest {
   linkedinUrl: string;
   messageType: MessageType;
-  messageLength: 'short' | 'medium' | 'long'; // New parameter for message length
-  platform: 'linkedin' | 'email'; // New parameter for platform
+  messageLength: 'very-short' | 'short' | 'medium' | 'long'; // Updated message length options
+  platform: 'linkedin' | 'email';
   profileData: ProfileData;
   resumeData?: ResumeData;
+  jobPostData?: JobPostData;
+  includeResume?: boolean;
 }
 
 // For demo purposes, we'll simulate API calls

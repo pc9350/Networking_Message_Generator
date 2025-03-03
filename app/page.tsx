@@ -20,7 +20,7 @@ import { api, type ProfileData, type ResumeData, type JobPostData } from "@/serv
 export default function Home() {
   const [linkedinUrl, setLinkedinUrl] = useState("");
   const [messageType, setMessageType] = useState<MessageType | null>(null);
-  const [messageLength, setMessageLength] = useState<MessageLength>("very-short");
+  const [messageLength, setMessageLength] = useState<MessageLength>("medium");
   const [platform, setPlatform] = useState<MessagePlatform>("linkedin");
   const [profileData, setProfileData] = useState<ProfileData | null>(null);
   const [resumeData, setResumeData] = useState<ResumeData | null>(null);
@@ -33,6 +33,7 @@ export default function Home() {
   const [isLoadingResume, setIsLoadingResume] = useState(false);
   const [isGeneratingMessage, setIsGeneratingMessage] = useState(false);
   const [activeTab, setActiveTab] = useState<"profile" | "job" | "feed">("profile");
+  const [economyMode, setEconomyMode] = useState<boolean>(true);
 
   const handleProfileDataExtracted = (data: ProfileData) => {
     setProfileData(data);
@@ -128,7 +129,8 @@ export default function Home() {
         },
         resumeData: resumeData || undefined,
         jobPostData: jobPostData || undefined,
-        includeResume: includeResume
+        includeResume: includeResume,
+        economyMode: economyMode
       });
       
       setGeneratedMessage(message);
@@ -239,6 +241,39 @@ export default function Home() {
                     
                     <div className="space-y-6">
                       <MessageLengthSelector onSelect={handleMessageLengthSelect} />
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-sm font-medium">API Usage Mode</h3>
+                        <div className="flex items-center space-x-2">
+                          <button
+                            onClick={() => setEconomyMode(true)}
+                            className={`px-3 py-1 text-sm rounded-full ${
+                              economyMode 
+                                ? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100 font-medium" 
+                                : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100"
+                            }`}
+                          >
+                            Economy
+                          </button>
+                          <button
+                            onClick={() => setEconomyMode(false)}
+                            className={`px-3 py-1 text-sm rounded-full ${
+                              !economyMode 
+                                ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100 font-medium" 
+                                : "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100"
+                            }`}
+                          >
+                            Premium
+                          </button>
+                        </div>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        {economyMode 
+                          ? "Economy mode uses GPT-3.5 for shorter messages to reduce API costs." 
+                          : "Premium mode uses GPT-4 for all messages for highest quality output."}
+                      </p>
                     </div>
                     
                     <div className="flex justify-center mt-6">

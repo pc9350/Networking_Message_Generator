@@ -1,15 +1,33 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { ExperienceItem, EducationItem } from "@/services/api";
+import { createHash } from 'crypto';
 
 // Initialize OpenAI client
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+// Simple in-memory cache for message responses
+// In production, consider using Redis or another persistent cache
+const messageCache = new Map();
+
+// Cache TTL in milliseconds (24 hours)
+const CACHE_TTL = 24 * 60 * 60 * 1000;
+
 export async function POST(request: Request) {
   try {
-    const { linkedinUrl, messageType, messageLength, platform, profileData, resumeData, jobPostData, includeResume } = await request.json();
+    const {
+      linkedinUrl,
+      messageType,
+      messageLength,
+      platform,
+      profileData,
+      resumeData,
+      jobPostData,
+      includeResume,
+      economyMode = true, // Default to economy mode if not specified
+    } = await request.json();
 
     if (!messageType) {
       return NextResponse.json(
@@ -32,6 +50,66 @@ export async function POST(request: Request) {
         { error: 'LinkedIn URL or profile data is required for non-job application messages' },
         { status: 400 }
       );
+    }
+
+    // Define word count ranges and max tokens based on message length
+    let wordCountRange;
+    let maxTokens;
+    // Use model selection based on economyMode and message length
+    let model = economyMode ? "gpt-3.5-turbo" : "gpt-4o"; // Default based on economy mode
+
+    // If not in economy mode, always use GPT-4
+    // If in economy mode, use GPT-3.5 for shorter messages, GPT-4 for longer ones
+    if (economyMode) {
+      switch (messageLength) {
+        case 'very-short':
+          wordCountRange = '25-50 words';
+          maxTokens = 100; // ~50 words
+          model = "gpt-3.5-turbo"; // Use cheaper model for very short
+          break;
+        case 'short':
+          wordCountRange = '50-100 words';
+          maxTokens = 200; // ~100 words
+          model = "gpt-3.5-turbo"; // Use cheaper model for short
+          break;
+        case 'medium':
+          wordCountRange = '100-200 words';
+          maxTokens = 400; // ~200 words
+          model = "gpt-4o"; // Use more advanced model for medium length
+          break;
+        case 'long':
+          wordCountRange = '200-300 words';
+          maxTokens = 600; // ~300 words
+          model = "gpt-4o"; // Use more advanced model for longer messages
+          break;
+        default:
+          wordCountRange = '100-200 words';
+          maxTokens = 400;
+          model = "gpt-3.5-turbo";
+      }
+    } else {
+      // Premium mode - always use GPT-4
+      switch (messageLength) {
+        case 'very-short':
+          wordCountRange = '25-50 words';
+          maxTokens = 100; // ~50 words
+          break;
+        case 'short':
+          wordCountRange = '50-100 words';
+          maxTokens = 200; // ~100 words
+          break;
+        case 'medium':
+          wordCountRange = '100-200 words';
+          maxTokens = 400; // ~200 words
+          break;
+        case 'long':
+          wordCountRange = '200-300 words';
+          maxTokens = 600; // ~300 words
+          break;
+        default:
+          wordCountRange = '100-200 words';
+          maxTokens = 400;
+      }
     }
 
     // Format experience items for better readability
@@ -63,32 +141,6 @@ export async function POST(request: Request) {
       formattedExperience = profileData.experience?.map(formatExperience).join('\n- ') || 'Unknown';
       formattedEducation = profileData.education?.map(formatEducation).join('\n- ') || 'Unknown';
       formattedSkills = profileData.skills?.join(', ') || 'Unknown';
-    }
-
-    // Define word count limits based on message length
-    let wordCountRange = '';
-    let maxTokens = 0;
-    
-    switch (messageLength) {
-      case 'very-short':
-        wordCountRange = '25-50 words';
-        maxTokens = 100; // ~50 words
-        break;
-      case 'short':
-        wordCountRange = '50-100 words';
-        maxTokens = 200; // ~100 words
-        break;
-      case 'medium':
-        wordCountRange = '100-150 words';
-        maxTokens = 300; // ~150 words
-        break;
-      case 'long':
-        wordCountRange = '150-200 words';
-        maxTokens = 400; // ~200 words
-        break;
-      default:
-        wordCountRange = '25-50 words';
-        maxTokens = 100;
     }
 
     // Create a detailed prompt based on the message type and available data
@@ -231,30 +283,63 @@ Keep the tone warm and professional.
 Be specific and concise - get to the point quickly.
 ${includeResume ? 'IMPORTANT: Include a professional statement that my resume is attached (avoid phrases like "happy to share" or "would love to share").' : ''}`;
 
+    // Generate a cache key based on the request parameters
+    const cacheKey = createHash('md5').update(JSON.stringify({
+      prompt,
+      model,
+      messageLength,
+      messageType,
+      platform
+    })).digest('hex');
+
+    // Check if we have a cached response
+    if (messageCache.has(cacheKey)) {
+      const cachedData = messageCache.get(cacheKey);
+      // Check if the cache is still valid
+      if (Date.now() - cachedData.timestamp < CACHE_TTL) {
+        console.log('Using cached response');
+        return NextResponse.json({ message: cachedData.message });
+      } else {
+        // Cache expired, remove it
+        messageCache.delete(cacheKey);
+      }
+    }
+
     // Call OpenAI API
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: model,
       messages: [
         {
           role: "system",
-          content: `You are a professional networking assistant that creates highly personalized ${platform === 'linkedin' ? 'LinkedIn messages' : 'emails'}. 
-Your messages are concise, engaging, and tailored to the recipient's background.
-You excel at finding meaningful connections between people's experiences and creating authentic outreach.
-You never use generic templates or clichés. Each message sounds like it was written specifically for the recipient.
-You focus on quality over quantity, ensuring every sentence adds value and demonstrates genuine interest.
-You understand that busy professionals prefer shorter messages that get to the point quickly.
-You write exactly as a human would - casual, using contractions, simple sentences, and occasional sentence fragments. You avoid sounding like AI by being imperfect but clear.`
+          content: `You create personalized ${platform === 'linkedin' ? 'LinkedIn messages' : 'emails'} that are concise and engaging. 
+Write as a human would - casual, using contractions and simple sentences. 
+Focus on quality over quantity. Be specific and authentic.`
         },
         {
           role: "user",
           content: prompt
         }
       ],
-      temperature: 0.9, // Higher temperature for more human-like text
+      temperature: messageLength === 'very-short' ? 0.9 : 0.7, // Higher temperature for very short messages
       max_tokens: maxTokens,
     });
 
     const generatedMessage = completion.choices[0].message.content;
+
+    // Cache the response
+    messageCache.set(cacheKey, {
+      message: generatedMessage,
+      timestamp: Date.now()
+    });
+
+    // Periodically clean up expired cache entries (simple implementation)
+    if (Math.random() < 0.1) { // 10% chance to run cleanup on each request
+      for (const [key, value] of messageCache.entries()) {
+        if (Date.now() - value.timestamp > CACHE_TTL) {
+          messageCache.delete(key);
+        }
+      }
+    }
 
     return NextResponse.json({ message: generatedMessage });
   } catch (error) {

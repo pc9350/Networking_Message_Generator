@@ -66,6 +66,7 @@ export interface MessageRequest {
   resumeData?: ResumeData;
   jobPostData?: JobPostData;
   includeResume?: boolean;
+  economyMode?: boolean; // Whether to use the cheaper model
 }
 
 // For demo purposes, we'll simulate API calls

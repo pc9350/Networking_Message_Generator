@@ -84,16 +84,16 @@ export function MessageDisplay({ message, isLoading }: MessageDisplayProps) {
       </div>
       <h3 className="mb-4 text-lg font-medium">Your Personalized Message</h3>
       <div className="whitespace-pre-wrap text-sm">{message}</div>
-      <div className="mt-6 flex justify-end">
+      <div className="mt-6 flex justify-center">
         <button
           onClick={copyToClipboard}
-          className="inline-flex items-center gap-2 rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+          className="inline-flex items-center gap-2 rounded-md bg-primary-600 px-6 py-2.5 text-base font-medium text-white shadow-md hover:bg-primary-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all"
         >
           {copied ? "Copied!" : "Copy to Clipboard"}
           {copied ? (
-            <CheckIcon className="h-4 w-4" />
+            <CheckIcon className="h-5 w-5" />
           ) : (
-            <ClipboardDocumentIcon className="h-4 w-4" />
+            <ClipboardDocumentIcon className="h-5 w-5" />
           )}
         </button>
       </div>

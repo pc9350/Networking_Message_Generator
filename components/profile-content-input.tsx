@@ -96,16 +96,16 @@ export default function ProfileContentInput({ onProfileDataExtracted }: ProfileC
         </div>
       </div>
       
-      <div className="pt-4">
+      <div className="pt-4 flex flex-col items-center">
         <Button 
           onClick={handleExtractProfile} 
           disabled={isLoading || !profileContent.trim()}
-          className="w-full"
+          className="px-8 py-3 text-base font-medium shadow-md hover:shadow-lg transition-all bg-primary-600 hover:bg-primary-700 text-white"
         >
           {isLoading ? "Extracting..." : "Extract Profile & Continue"}
         </Button>
         
-        <p className="text-xs text-gray-500 text-center mt-2">
+        <p className="text-xs text-gray-500 text-center mt-4">
           After clicking, scroll down to configure and generate your message
         </p>
       </div>

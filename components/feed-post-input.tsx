@@ -79,17 +79,19 @@ export default function FeedPostInput({ onJobPostDataExtracted, onIncludeResumeC
         </Label>
       </div>
       
-      <Button 
-        onClick={handleSubmit}
-        disabled={!postContent || isProcessing}
-        className="w-full"
-      >
-        {isProcessing ? "Processing..." : "Continue to Message Options"}
-      </Button>
-      
-      <p className="text-xs text-gray-500 text-center mt-2">
-        After clicking, scroll down to configure and generate your message
-      </p>
+      <div className="flex flex-col items-center mt-4">
+        <Button 
+          onClick={handleSubmit}
+          disabled={!postContent || isProcessing}
+          className="px-8 py-3 text-base font-medium shadow-md hover:shadow-lg transition-all bg-primary-600 hover:bg-primary-700 text-white"
+        >
+          {isProcessing ? "Processing..." : "Continue to Message Options"}
+        </Button>
+        
+        <p className="text-xs text-gray-500 text-center mt-4">
+          After clicking, scroll down to configure and generate your message
+        </p>
+      </div>
     </div>
   );
 } 

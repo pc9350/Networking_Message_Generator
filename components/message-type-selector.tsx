@@ -24,9 +24,10 @@ interface MessageTypeOption {
 interface MessageTypeSelectorProps {
   onSelect: (type: MessageType) => void;
   platform: MessagePlatform; // Add platform prop
+  currentTab: "profile" | "job" | "feed"; // Add currentTab prop
 }
 
-export function MessageTypeSelector({ onSelect, platform }: MessageTypeSelectorProps) {
+export function MessageTypeSelector({ onSelect, platform, currentTab }: MessageTypeSelectorProps) {
   const [selectedType, setSelectedType] = useState<MessageType | null>(null);
 
   // Define all message type options with platform availability
@@ -187,10 +188,25 @@ export function MessageTypeSelector({ onSelect, platform }: MessageTypeSelectorP
     },
   ];
 
-  // Filter message types based on the selected platform
-  const messageTypeOptions = allMessageTypeOptions.filter(option => 
-    option.platforms.includes(platform)
-  );
+  // Filter message types based on the selected platform and current tab
+  const messageTypeOptions = allMessageTypeOptions.filter(option => {
+    // Filter by platform first
+    const platformMatch = option.platforms.includes(platform);
+    
+    // Then filter by tab
+    if (currentTab === "profile") {
+      // Hide job-related types on profile tab
+      return platformMatch && option.id !== "job-application" && option.id !== "job-post-response";
+    } else if (currentTab === "job") {
+      // On job tab, show all types but prioritize job application in UI
+      return platformMatch;
+    } else if (currentTab === "feed") {
+      // On feed tab, show all types but prioritize job post response in UI
+      return platformMatch;
+    }
+    
+    return platformMatch;
+  });
 
   // Reset selected type when platform changes
   useEffect(() => {

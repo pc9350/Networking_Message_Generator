@@ -75,15 +75,8 @@ export default function Home() {
   const handleMessageTypeSelect = (type: MessageType) => {
     setMessageType(type);
     
-    // If job application type is selected but no job post data, switch to job tab
-    if (type === "job-application" && !jobPostData) {
-      setActiveTab("job");
-    }
-    
-    // If job post response type is selected but no job post data, switch to feed tab
-    if (type === "job-post-response" && !jobPostData) {
-      setActiveTab("feed");
-    }
+    // We're removing all automatic tab switching to prevent navigation issues
+    // Users should stay on their current tab regardless of message type selection
   };
 
   const handleMessageLengthSelect = (length: MessageLength) => {
@@ -141,7 +134,6 @@ export default function Home() {
       setGeneratedMessage(message);
     } catch (error) {
       console.error("Error generating message:", error);
-      // Handle error
     } finally {
       setIsGeneratingMessage(false);
     }
@@ -232,28 +224,32 @@ export default function Home() {
                 <div id="message-config-section" className="space-y-6">
                   <h2 className="text-2xl font-bold tracking-tight">Step 3: Configure Your Message</h2>
                   
-                  <div className="space-y-6">
-                    <div>
+                  <div className="space-y-8">
+                    <div className="space-y-6">
                       <PlatformSelector onSelect={handlePlatformSelect} />
                     </div>
                     
-                    <div>
-                      <MessageTypeSelector onSelect={handleMessageTypeSelect} platform={platform} />
+                    <div className="space-y-6">
+                      <MessageTypeSelector 
+                        onSelect={handleMessageTypeSelect} 
+                        platform={platform}
+                        currentTab={activeTab}
+                      />
                     </div>
                     
-                    <div>
+                    <div className="space-y-6">
                       <MessageLengthSelector onSelect={handleMessageLengthSelect} />
                     </div>
-                  </div>
-                  
-                  <div className="mt-6 flex justify-center">
-                    <button
-                      onClick={generateMessage}
-                      disabled={!messageType || isGeneratingMessage}
-                      className="inline-flex items-center justify-center rounded-md bg-primary-600 px-6 py-3 text-sm font-medium text-white shadow-sm hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {isGeneratingMessage ? "Generating..." : "Generate Message"}
-                    </button>
+                    
+                    <div className="flex justify-center mt-6">
+                      <button
+                        onClick={generateMessage}
+                        disabled={!messageType || isGeneratingMessage}
+                        className="inline-flex items-center justify-center rounded-md bg-primary-600 px-8 py-3 text-base font-medium text-white shadow-md hover:bg-primary-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                      >
+                        {isGeneratingMessage ? "Generating..." : "Generate Message"}
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}

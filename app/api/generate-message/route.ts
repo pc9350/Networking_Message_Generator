@@ -270,6 +270,25 @@ Mention that you'd like to learn more about the role before formally applying.
 ${includeResume ? 'Include a professional statement that my resume is attached for their consideration.' : ''}
 End with a clear but low-pressure call to action (like offering to chat or asking about next steps).`;
         break;
+      case 'interview-request':
+        prompt += `\nCreate a follow-up message to request an interview after submitting a job application.
+Express continued interest in the position without sounding desperate.
+Briefly highlight 1-2 key qualifications that make me an excellent fit for the role.
+Acknowledge their busy schedule but express enthusiasm about the opportunity to discuss my application further.
+If it's been more than a week since application, mention this tactfully (e.g., "I submitted my application last week").
+${includeResume ? 'Include a subtle reminder that my resume was already submitted with the application.' : ''}
+End with a specific but polite call to action requesting a brief conversation or interview.
+Keep the tone confident but respectful.`;
+        break;
+      case 'message-reply':
+        prompt += `\nCreate a conversational response to a LinkedIn message.
+Keep it friendly, engaging, and natural - as if responding to a colleague or professional contact.
+This should sound like a normal conversation continuation or a thoughtful response to their outreach.
+Be concise and to the point - LinkedIn messages should be easy to read on mobile devices.
+If appropriate, include a question or call-to-action to continue the conversation naturally.
+Use a warm, professional tone that matches the context of a professional networking conversation.
+Make it extremely conversational and human-like, with natural language flow.`;
+        break;
       default:
         prompt += '\nCreate a professional networking message.';
     }
